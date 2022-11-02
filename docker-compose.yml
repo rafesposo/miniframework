@@ -1,0 +1,35 @@
+version: "3.2"
+services:
+  web:
+    image: nginx:1.17.8
+    ports:
+      - 80:80
+    volumes:
+      - ./build/nginx/site.conf:/etc/nginx/conf.d/site.conf
+      - ./www:/var/www/html
+    environment:
+      - VIRTUAL_HOST=miniframework.localhost
+    links:
+      - fpm
+  fpm:
+    build: ./build/php
+    volumes:
+      - ./www:/var/www/html
+    links:
+      - mysql
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=senha
+      - MYSQL_DATABASE=mydatabase
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/db:/var/lib/mysql
+
+networks:
+  default:
+    name: nginx-proxy
